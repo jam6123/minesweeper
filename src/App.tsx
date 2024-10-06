@@ -15,6 +15,15 @@ import { useEffect, useState } from 'react'
   
 */
 
+const generateRandomNumber = function(except: number, max: number): number {
+  let result = Math.round(Math.random() * max);
+  while (result === except) {
+    result = Math.round(Math.random() * max);
+  }
+
+  return result;
+}
+
 type BoxValue = number | "💣";
 
 function scatterMines(indexOfFirstOpenedBox: number) {
