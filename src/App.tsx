@@ -12,31 +12,56 @@ import { useEffect, useState } from 'react'
   7. Putting mine count on top-right side of every mine. - DONE
   8. Putting mine count on top-left side of every mine. - DONE
   9. Making sure the first click is always an empty box. - DONE
-  
+  10. When we have clicked on an empty-box it should reveal all its surrounding except boxes with mines. - 
+    - revealed empty-box should do the same.
+  11.
 */
 
-const generateRandomNumber = function(except: number, max: number): number {
+type BoxValue = number | "💣";
+
+function generateRandomNumber(max: number, except: number | number[]): number {
+  if(typeof except === "number") except = [except];
   let result = Math.round(Math.random() * max);
-  while (result === except) {
+
+  while (except.includes(result)) {
     result = Math.round(Math.random() * max);
   }
 
   return result;
-}
-
-type BoxValue = number | "💣";
+};
 
 function scatterMines(indexOfFirstOpenedBox: number) {
   const boxes: BoxValue[] = Array(100).fill(null);
+
+  /*
+    Q:What are this indexes? 
+      - We need this indexes to prevent putting mines beside the very first opened box. 
+    Q:why?
+      - Cause if we put mine/s beside it that mine/s also need mine counts around so that
+        first opened box will be filled a number.
+    Q:Why do we need the first opened box to be emptied?
+      - Cause that first empty opened box is what we will use as our starting point to
+        reveal any adjacent empty box.
+  */
+  const indexesOfallSidesOfFirstOpenedBox: number[] = [
+    indexOfFirstOpenedBox+1,
+    indexOfFirstOpenedBox-1,
+    indexOfFirstOpenedBox+9,
+    indexOfFirstOpenedBox-9,
+    indexOfFirstOpenedBox+11,
+    indexOfFirstOpenedBox-11,
+    indexOfFirstOpenedBox+10,
+    indexOfFirstOpenedBox-10
+  ];
   const MINE_COUNT = 20;
 
   for(let i=0; i<MINE_COUNT; i++) {
-    // Putting a mine on each random box
-    const randomIndex = Math.round(Math.random() * 99);
-    if(boxes[randomIndex] == "💣") {
-      i -= 1
-      continue;
-    };
+    let randomIndex = generateRandomNumber(99, [...indexesOfallSidesOfFirstOpenedBox, indexOfFirstOpenedBox]);
+
+    while(boxes[randomIndex] == "💣") {
+      randomIndex = generateRandomNumber(99, [...indexesOfallSidesOfFirstOpenedBox, indexOfFirstOpenedBox]);
+    }
+
     boxes[randomIndex] = "💣";
 
     // Putting mine count on right side
@@ -76,30 +101,28 @@ function scatterMines(indexOfFirstOpenedBox: number) {
     if(isMineNotOnTheFirstRow && isTopLeftOfMineNotAMine && isMineNotOnTheFirstColumn) boxes[randomIndex-11] = +boxes[randomIndex-11] + 1;
 
   }
-  
-  if(boxes[indexOfFirstOpenedBox] != null) {
-    return scatterMines(indexOfFirstOpenedBox);
-  }
+
   return boxes;
 };
 
 function App() {
   const [boxes, setBoxes] = useState<BoxValue[]>(Array(100).fill(null));
-  const [openedBoxesIndex, setopenedBoxesIndex] = useState<number[]>([]);
+  const [indexesOfOpenedBoxes, setIndexesOfOpenedBoxes] = useState<number[]>([]);
   const [isFirstClick, setIsFirstClick] = useState<Boolean>(true);
 
-  const openBox = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, index: number, box: BoxValue ) => {
-    e.currentTarget.classList.add("bg-gray-300");
-    e.currentTarget.classList.add("pointer-events-none");
+  const openBox = (index: number) => {
 
     if(isFirstClick) {
       setBoxes(scatterMines(index));
       setIsFirstClick(false);
     };
 
-    setopenedBoxesIndex([...openedBoxesIndex, index]);
-    if(box == "💣") console.log("KABOOM!!!")
+    // setIndexesOfOpenedBoxes((prev) => [...prev, index]);
   };
+  
+  // useEffect(() => {
+  //   revealSurroundings(indexesOfOpenedBoxes, boxes, setIndexesOfOpenedBoxes);
+  // }, [boxes, ]);
 
   return (
     <>
@@ -112,7 +135,12 @@ function App() {
                 key={index}
                 onMouseDown={(e) => openBox(e, index, box)}
               >
+<<<<<<< Updated upstream
                 {openedBoxesIndex.includes(index) && box}
+=======
+                {/* {indexesOfOpenedBoxes.includes(index) && box} */}
+                {box}
+>>>>>>> Stashed changes
               </button>
             )
           })
