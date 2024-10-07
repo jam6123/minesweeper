@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useEffect, useState } from 'react'
 
 /*
@@ -131,16 +132,14 @@ function App() {
           boxes.map((box, index) => {
             return (
               <button 
-                className='bg-blue-500 select-none cursor-default hover:bg-blue-400 active:scale-95 border-black border-solid border-2' 
+                className={clsx(
+                  "bg-blue-500 select-none cursor-default hover:bg-blue-400 active:scale-95 border-black border-solid border-2",
+                  indexesOfOpenedBoxes.includes(index) && "bg-gray-300 pointer-events-none"
+                )}
                 key={index}
-                onMouseDown={(e) => openBox(e, index, box)}
+                onMouseDown={() => openBox(index)}
               >
-<<<<<<< Updated upstream
-                {openedBoxesIndex.includes(index) && box}
-=======
-                {/* {indexesOfOpenedBoxes.includes(index) && box} */}
-                {box}
->>>>>>> Stashed changes
+                {indexesOfOpenedBoxes.includes(index) && box}
               </button>
             )
           })
