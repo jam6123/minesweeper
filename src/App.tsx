@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 /*
   Project date started October 6 2024, 01:00 AM
@@ -13,12 +13,15 @@ import { useEffect, useState } from 'react'
   7. Putting mine count on top-right side of every mine. - DONE
   8. Putting mine count on top-left side of every mine. - DONE
   9. Making sure the first click is always an empty box. - DONE
-  10. When we have clicked on an empty-box it should reveal all its surrounding except boxes with mines. - 
+  10. When we have clicked on an empty-box it should reveal all its surrounding except boxes with mines. - DONE(Oct. 10, 2024 - 7:00PM)
     - revealed empty-box should do the same.
   11.
 */
 
-type BoxValue = number | "💣";
+type Box = {
+  value: number | "💣" | null;
+  isOpen: boolean;
+};
 
 function generateRandomNumber(max: number, except: number | number[]): number {
   if(typeof except === "number") except = [except];
@@ -31,8 +34,57 @@ function generateRandomNumber(max: number, except: number | number[]): number {
   return result;
 };
 
-function scatterMines(indexOfFirstOpenedBox: number) {
-  const boxes: BoxValue[] = Array(100).fill(null);
+function getIndexesOfAllSidesOfBox(targetIndex: number): number[] {
+  const isTargetIndexOnFirstRow = targetIndex <= 9;
+  const isTargetIndexOnFirstColumn = targetIndex % 10 == 0;
+  const isTargetIndexOnLastColumn = targetIndex % 10 == 9;
+  const isTargetIndexOnLastRow = targetIndex >= 90;
+  
+  /*
+    Sides reference
+
+    [TL] [TM] [TR]
+
+    [L ] [M ] [R ]
+
+    [BL] [BM] [BR]
+
+    The middle "[M ]" is where your "targetIndex".
+  */
+  const TL = targetIndex-11;
+  const TM = targetIndex-10;
+  const TR = targetIndex-9;
+  const R = targetIndex+1;
+  const BR = targetIndex+11;
+  const BM = targetIndex+10;
+  const BL = targetIndex+9;
+  const L = targetIndex-1;
+
+  // Indexes
+  const topLeft      = isTargetIndexOnFirstRow || isTargetIndexOnFirstColumn ? null : TL;
+  const topMiddle    =                               isTargetIndexOnFirstRow ? null : TM;
+  const topRight     =  isTargetIndexOnFirstRow || isTargetIndexOnLastColumn ? null : TR;
+  const right        =                             isTargetIndexOnLastColumn ? null : R;
+  const bottomRight  =   isTargetIndexOnLastColumn || isTargetIndexOnLastRow ? null : BR;
+  const bottomMiddle =                                isTargetIndexOnLastRow ? null : BM;
+  const bottomLeft   =  isTargetIndexOnLastRow || isTargetIndexOnFirstColumn ? null : BL;
+  const left         =                            isTargetIndexOnFirstColumn ? null : L;
+
+  return [
+    topLeft,
+    topMiddle,
+    topRight,
+    right,
+    bottomRight,
+    bottomMiddle,
+    bottomLeft,
+    left
+  ].filter(value => value != null);   // Remove null values. 
+}
+
+function scatterMines(indexOfFirstOpenedBox: number): Box[] {
+  const BOXES = Array.from({ length: 100 }, (): Box => ({ value: null, isOpen: false }));
+  const MINE_COUNT = 10;
 
   /*
     Q:What are this indexes? 
@@ -44,87 +96,81 @@ function scatterMines(indexOfFirstOpenedBox: number) {
       - Cause that first empty opened box is what we will use as our starting point to
         reveal any adjacent empty box.
   */
-  const indexesOfallSidesOfFirstOpenedBox: number[] = [
-    indexOfFirstOpenedBox+1,
-    indexOfFirstOpenedBox-1,
-    indexOfFirstOpenedBox+9,
-    indexOfFirstOpenedBox-9,
-    indexOfFirstOpenedBox+11,
-    indexOfFirstOpenedBox-11,
-    indexOfFirstOpenedBox+10,
-    indexOfFirstOpenedBox-10
-  ];
-  const MINE_COUNT = 20;
+  const indexesOfallSidesOfFirstOpenedBox: number[] = getIndexesOfAllSidesOfBox(indexOfFirstOpenedBox);
 
   for(let i=0; i<MINE_COUNT; i++) {
     let randomIndex = generateRandomNumber(99, [...indexesOfallSidesOfFirstOpenedBox, indexOfFirstOpenedBox]);
-
-    while(boxes[randomIndex] == "💣") {
+    
+    while(BOXES[randomIndex].value == "💣") {
       randomIndex = generateRandomNumber(99, [...indexesOfallSidesOfFirstOpenedBox, indexOfFirstOpenedBox]);
     }
 
-    boxes[randomIndex] = "💣";
+    BOXES[randomIndex].value = "💣";
 
-    // Putting mine count on right side
-    const isRightSideOfMineNotAMine = boxes[randomIndex+1] != "💣";
-    const isMineNotOnTheLastColumn = randomIndex % 10 != 9;
-    if(isMineNotOnTheLastColumn && isRightSideOfMineNotAMine) boxes[randomIndex+1] = +boxes[randomIndex+1] + 1;
-    
-    // Putting mine count on left side
-    const isLeftSideOfMineNotAMine = boxes[randomIndex-1] != "💣";
-    const isMineNotOnTheFirstColumn = randomIndex % 10 != 0;
-    if(isMineNotOnTheFirstColumn && isLeftSideOfMineNotAMine) boxes[randomIndex-1] = +boxes[randomIndex-1] + 1;
-    
-    // Putting mine count on bottom-left side
-    const isMineNotOnTheLastRow = !(randomIndex >= 90);
-    const isBottomLeftOfMineNotAMine = boxes[randomIndex+9] != "💣";
-    if(isMineNotOnTheFirstColumn && isBottomLeftOfMineNotAMine && isMineNotOnTheLastRow) boxes[randomIndex+9] = +boxes[randomIndex+9] + 1;
+    getIndexesOfAllSidesOfBox(randomIndex).forEach(index => {
+      if(BOXES[index].value == "💣") return;
 
-    // Putting mine count on bottom-right side
-    const isBottomRightSideOfMineNotAMine = boxes[randomIndex+11] != "💣";
-    if(isMineNotOnTheLastColumn && isBottomRightSideOfMineNotAMine && isMineNotOnTheLastRow) boxes[randomIndex+11] = +boxes[randomIndex+11] + 1;
-
-    // Putting mine count on bottom-middle side
-    const isBottomMiddleOfMineNotAMine = boxes[randomIndex+10] != "💣";
-    if(isBottomMiddleOfMineNotAMine && isMineNotOnTheLastRow) boxes[randomIndex+10] = +boxes[randomIndex+10] + 1;
-
-    // Putting mine count on top side
-    const isMineNotOnTheFirstRow = !(randomIndex <= 9);
-    const isTopOfMineNotAMine = boxes[randomIndex-10] != "💣";
-    if(isMineNotOnTheFirstRow && isTopOfMineNotAMine) boxes[randomIndex-10] = +boxes[randomIndex-10] + 1;
-
-    // Putting mine count on top-right side
-    const isTopRightOfMineNotAMine = boxes[randomIndex-9] != "💣";
-    if(isMineNotOnTheFirstRow && isTopRightOfMineNotAMine && isMineNotOnTheLastColumn) boxes[randomIndex-9] = +boxes[randomIndex-9] + 1;
-
-    // Putting mine count on top-left side
-    const isTopLeftOfMineNotAMine = boxes[randomIndex-11] != "💣";
-    if(isMineNotOnTheFirstRow && isTopLeftOfMineNotAMine && isMineNotOnTheFirstColumn) boxes[randomIndex-11] = +boxes[randomIndex-11] + 1;
-
+      BOXES[index].value! += 1;
+    });
   }
 
-  return boxes;
+  return BOXES;
 };
 
+function revealSurroundings(
+  index: number,
+  boxes: Box[],
+  setBoxes: React.Dispatch<React.SetStateAction<Box[]>>
+): void {
+
+  getIndexesOfAllSidesOfBox(index).forEach(i => {
+    if(boxes[i].value === "💣" || boxes[i].isOpen) return;
+
+    setBoxes(prev => {
+      const boxesCopy = [...prev];
+      boxesCopy[i].isOpen = true;
+
+      if(boxesCopy[i].value === null) {
+        revealSurroundings(i, boxesCopy, setBoxes);
+      };
+
+      return boxesCopy;
+    });
+  });
+  
+}
+
+const initialValue = Array.from({ length: 100 }, (): Box => ({ value: null, isOpen: false }));
+
 function App() {
-  const [boxes, setBoxes] = useState<BoxValue[]>(Array(100).fill(null));
-  const [indexesOfOpenedBoxes, setIndexesOfOpenedBoxes] = useState<number[]>([]);
+  const [boxes, setBoxes] = useState<Box[]>(initialValue);
   const [isFirstClick, setIsFirstClick] = useState<Boolean>(true);
 
-  const openBox = (index: number) => {
-
+  const onClickBox = (index: number): void => {
     if(isFirstClick) {
       setBoxes(scatterMines(index));
       setIsFirstClick(false);
     };
 
-    // setIndexesOfOpenedBoxes((prev) => [...prev, index]);
+    // Because we use the "prev" here we can get the updated state made by the previous/preceded "setBoxes" setter.
+    setBoxes(prev => {
+      const boxesCopy = [...prev];
+      boxesCopy[index].isOpen = true;
+  
+      return boxesCopy;
+    });
+
+    if(boxes[index].value === null) {
+      revealSurroundings(index, boxes, setBoxes);
+      return;
+
+    }else if(boxes[index].value === "💣") {
+      // Display Game over ********
+      return;
+    };
+
   };
   
-  // useEffect(() => {
-  //   revealSurroundings(indexesOfOpenedBoxes, boxes, setIndexesOfOpenedBoxes);
-  // }, [boxes, ]);
-
   return (
     <>
       <div className='w-96 bg-black aspect-square grid grid-cols-10 grid-rows-10'>
@@ -134,12 +180,12 @@ function App() {
               <button 
                 className={clsx(
                   "bg-blue-500 select-none cursor-default hover:bg-blue-400 active:scale-95 border-black border-solid border-2",
-                  indexesOfOpenedBoxes.includes(index) && "bg-gray-300 pointer-events-none"
+                  box.isOpen && "bg-gray-300 pointer-events-none"
                 )}
                 key={index}
-                onMouseDown={() => openBox(index)}
+                onMouseDown={() => onClickBox(index)}
               >
-                {indexesOfOpenedBoxes.includes(index) && box}
+                {box.isOpen && box.value}
               </button>
             )
           })
