@@ -149,7 +149,12 @@ function App() {
 
     }else if(boxes[index].value === "💣") {
       // Display Game over ********
-      return;
+      setBoxes(prev => {
+        const revealAllMines = (box: Box) => box.value == "💣" ? { ...box, isOpen: true } : box;
+        const boxesCopy = [...prev].map(revealAllMines);
+        
+        return boxesCopy;
+      });
     };
 
   };
