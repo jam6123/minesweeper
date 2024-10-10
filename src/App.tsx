@@ -1,23 +1,6 @@
 import clsx from 'clsx';
 import { useState } from 'react'
 
-/*
-  Project date started October 6 2024, 01:00 AM
-  *********PROGRESS*********
-  1. Putting mine count on left side of every mine. - DONE
-  2. Putting mine count on right side of every mine. - DONE
-  3. Putting mine count on bottom-left side of every mine. - DONE
-  4. Putting mine count on bottom-middle of every mine. - DONE
-  5. Putting mine count on bottom-right side of every mine. - DONE
-  6. Putting mine count on top side of every mine. - DONE
-  7. Putting mine count on top-right side of every mine. - DONE
-  8. Putting mine count on top-left side of every mine. - DONE
-  9. Making sure the first click is always an empty box. - DONE
-  10. When we have clicked on an empty-box it should reveal all its surrounding except boxes with mines. - DONE(Oct. 10, 2024 - 7:00PM)
-    - revealed empty-box should do the same.
-  11.
-*/
-
 type Box = {
   value: number | "💣" | null;
   isOpen: boolean;
