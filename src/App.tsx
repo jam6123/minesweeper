@@ -129,7 +129,29 @@ function App() {
   const [boxes, setBoxes] = useState<Box[]>(initialValue);
   const [isFirstClick, setIsFirstClick] = useState<Boolean>(true);
 
+  const playSound = (box: Box):void => {
+    const numberBoxAudio = new Audio("/src/assests/click.mp3");
+    const emptyBoxAudio = new Audio("/src/assests/empty-box.mp3");
+    const mineBoxAudio = new Audio("/src/assests/explode.mp3");
+
+    switch (box.value) {
+      case null:
+        emptyBoxAudio.play();
+        break;
+
+      case "💣":
+        mineBoxAudio.play();
+        break
+    
+      default:
+        numberBoxAudio.play();
+    }
+    
+  }
+
   const onClickBox = (index: number): void => {
+    playSound(boxes[index]);
+
     if(isFirstClick) {
       setBoxes(scatterMines(index));
       setIsFirstClick(false);
@@ -157,7 +179,7 @@ function App() {
       });
     };
 
-  };
+  }
   
   return (
     <>
