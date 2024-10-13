@@ -165,7 +165,7 @@ function App() {
     }
 
     if(clickedBox.isMarked) return;
-  
+    
     playSound(clickedBox);
     if(isFirstClick) {
       setBoxes(scatterMines(index));
@@ -180,19 +180,20 @@ function App() {
       return boxesCopy;
     });
 
-    if(clickedBox.value === null) {
-      revealSurroundings(index, boxes, setBoxes);
-      return;
-
-    }else if(clickedBox.value === "💣") {
-      // Display Game over ********
-      setBoxes(prev => {
-        const revealAllMines = (box: Box) => box.value == "💣" ? { ...box, isOpened: true } : box;
-        const boxesWithAllMinesRevealed = [...prev].map(revealAllMines);
-        
-        return boxesWithAllMinesRevealed;
-      });
-    };
+    switch(clickedBox.value) {
+      case null:
+        revealSurroundings(index, boxes, setBoxes);
+        break;
+      case "💣":
+        // Display Game over ********
+        setBoxes(prev => {
+          const revealAllMines = (box: Box) => box.value == "💣" ? { ...box, isOpened: true } : box;
+          const boxesWithAllMinesRevealed = [...prev].map(revealAllMines);
+          
+          return boxesWithAllMinesRevealed;
+        });
+        break;
+    }
   }
   
   return (
