@@ -3,7 +3,8 @@ import { useState } from 'react'
 
 type Box = {
   value: number | "💣" | null;
-  isOpen: boolean;
+  isOpened: boolean;
+  isMarked: boolean;
 };
 
 function generateRandomNumber(max: number, except: number | number[]): number {
@@ -66,7 +67,7 @@ function getIndexesOfAllSidesOfBox(targetIndex: number): number[] {
 }
 
 function scatterMines(indexOfFirstOpenedBox: number): Box[] {
-  const BOXES = Array.from({ length: 100 }, (): Box => ({ value: null, isOpen: false }));
+  const BOXES = Array.from({ length: 100 }, (): Box => ({ value: null, isOpened: false, isMarked: false }));
   const MINE_COUNT = 10;
 
   /*
@@ -107,11 +108,11 @@ function revealSurroundings(
 ): void {
 
   getIndexesOfAllSidesOfBox(index).forEach(i => {
-    if(boxes[i].value === "💣" || boxes[i].isOpen) return;
+    if(boxes[i].value === "💣" || boxes[i].isOpened) return;
 
     setBoxes(prev => {
       const boxesCopy = [...prev];
-      boxesCopy[i].isOpen = true;
+      boxesCopy[i].isOpened = true;
 
       if(boxesCopy[i].value === null) {
         revealSurroundings(i, boxesCopy, setBoxes);
@@ -123,7 +124,7 @@ function revealSurroundings(
   
 }
 
-const initialValue = Array.from({ length: 100 }, (): Box => ({ value: null, isOpen: false }));
+const initialValue = Array.from({ length: 100 }, (): Box => ({ value: null, isOpened: false, isMarked: false }));
 
 function App() {
   const [boxes, setBoxes] = useState<Box[]>(initialValue);
@@ -149,9 +150,23 @@ function App() {
     
   }
 
-  const onClickBox = (index: number): void => {
-    playSound(boxes[index]);
+  const markBox = (index: number) => {
+    const boxesCopy = [...boxes];
+    boxesCopy[index].isMarked = !boxesCopy[index].isMarked;
+    setBoxes(boxesCopy);
+  }
+  
+  const onClickBox = (index: number, e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
+    const clickedBox = boxes[index];
+    const isRightClick = e.button === 2;
+    if(isRightClick) {
+      markBox(index);
+      return;
+    }
 
+    if(clickedBox.isMarked) return;
+  
+    playSound(clickedBox);
     if(isFirstClick) {
       setBoxes(scatterMines(index));
       setIsFirstClick(false);
@@ -160,42 +175,45 @@ function App() {
     // Because we use the "prev" here we can get the updated state made by the previous/preceded "setBoxes" setter.
     setBoxes(prev => {
       const boxesCopy = [...prev];
-      boxesCopy[index].isOpen = true;
+      boxesCopy[index].isOpened = true;
   
       return boxesCopy;
     });
 
-    if(boxes[index].value === null) {
+    if(clickedBox.value === null) {
       revealSurroundings(index, boxes, setBoxes);
       return;
 
-    }else if(boxes[index].value === "💣") {
+    }else if(clickedBox.value === "💣") {
       // Display Game over ********
       setBoxes(prev => {
-        const revealAllMines = (box: Box) => box.value == "💣" ? { ...box, isOpen: true } : box;
-        const boxesCopy = [...prev].map(revealAllMines);
+        const revealAllMines = (box: Box) => box.value == "💣" ? { ...box, isOpened: true } : box;
+        const boxesWithAllMinesRevealed = [...prev].map(revealAllMines);
         
-        return boxesCopy;
+        return boxesWithAllMinesRevealed;
       });
     };
-
   }
   
   return (
     <>
-      <div className='w-96 bg-black aspect-square grid grid-cols-10 grid-rows-10'>
+      <div 
+        className='w-96 bg-black aspect-square grid grid-cols-10 grid-rows-10' 
+        onContextMenu={(e) => e.preventDefault()}
+      >
         {
           boxes.map((box, index) => {
             return (
               <button 
                 className={clsx(
                   "bg-blue-500 select-none cursor-default hover:bg-blue-400 active:scale-95 border-black border-solid border-2",
-                  box.isOpen && "bg-gray-300 pointer-events-none"
+                  box.isOpened && "bg-gray-300 pointer-events-none"
                 )}
                 key={index}
-                onMouseDown={() => onClickBox(index)}
+                onMouseDown={(e) => onClickBox(index, e)}
               >
-                {box.isOpen && box.value}
+                {box.isOpened && box.value}
+                {box.isMarked && !box.isOpened && "🚩"}
               </button>
             )
           })
