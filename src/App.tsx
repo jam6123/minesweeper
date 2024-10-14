@@ -129,6 +129,18 @@ const initialValue = Array.from({ length: 100 }, (): Box => ({ value: null, isOp
 function App() {
   const [boxes, setBoxes] = useState<Box[]>(initialValue);
   const [isFirstClick, setIsFirstClick] = useState<Boolean>(true);
+  const [timer, setTimer] = useState(0);   // seconds
+  
+  const formatTimer = (): string => {
+    switch (timer.toString().length) {
+      case 1:
+        return "00"+timer;
+      case 2:
+        return "0"+timer;
+      default:
+        return ""+timer;
+    }
+  }
 
   const playSound = (box: Box):void => {
     const numberBoxAudio = new Audio("/src/assests/click.mp3");
@@ -155,6 +167,12 @@ function App() {
     boxesCopy[index].isMarked = !boxesCopy[index].isMarked;
     setBoxes(boxesCopy);
   }
+
+  const startTimer = () => {
+    setInterval(() => {
+      setTimer(prev => prev + 1);
+    }, 1000);
+  }
   
   const onClickBox = (index: number, e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
     const clickedBox = boxes[index];
@@ -168,6 +186,8 @@ function App() {
     
     playSound(clickedBox);
     if(isFirstClick) {
+      startTimer();
+      
       setBoxes(scatterMines(index));
       setIsFirstClick(false);
     };
@@ -197,7 +217,11 @@ function App() {
   }
   
   return (
-    <>
+    <div>
+      <div className='text-white'>
+        <p>{formatTimer()}</p>
+      </div>
+
       <div 
         className='w-96 bg-black aspect-square grid grid-cols-10 grid-rows-10' 
         onContextMenu={(e) => e.preventDefault()}
@@ -220,7 +244,7 @@ function App() {
           })
         }
       </div>
-    </>
+    </div>
   )
 }
 
