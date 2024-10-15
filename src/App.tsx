@@ -66,8 +66,7 @@ function getIndexesOfAllSidesOfBox(targetIndex: number): number[] {
   ].filter(value => value != null);   // Remove null values. 
 }
 
-function scatterMines(indexOfFirstOpenedBox: number): Box[] {
-  const BOXES = Array.from({ length: 100 }, (): Box => ({ value: null, isOpened: false, isMarked: false }));
+function scatterMines(indexOfFirstOpenedBox: number, initialBoxes: Box[]): Box[] {
   const MINE_COUNT = 10;
 
   /*
@@ -85,20 +84,20 @@ function scatterMines(indexOfFirstOpenedBox: number): Box[] {
   for(let i=0; i<MINE_COUNT; i++) {
     let randomIndex = generateRandomNumber(99, [...indexesOfallSidesOfFirstOpenedBox, indexOfFirstOpenedBox]);
     
-    while(BOXES[randomIndex].value == "💣") {
+    while(initialBoxes[randomIndex].value == "💣") {
       randomIndex = generateRandomNumber(99, [...indexesOfallSidesOfFirstOpenedBox, indexOfFirstOpenedBox]);
     }
 
-    BOXES[randomIndex].value = "💣";
+    initialBoxes[randomIndex].value = "💣";
 
     getIndexesOfAllSidesOfBox(randomIndex).forEach(index => {
-      if(BOXES[index].value == "💣") return;
+      if(initialBoxes[index].value == "💣") return;
 
-      BOXES[index].value! += 1;
+      initialBoxes[index].value! += 1;
     });
   }
 
-  return BOXES;
+  return initialBoxes;
 };
 
 function revealSurroundings(
@@ -205,7 +204,7 @@ function App() {
     if(isFirstClick) {
       startTimer();
 
-      setBoxes(scatterMines(index));
+      setBoxes(scatterMines(index, boxes));
       setIsFirstClick(false);
     };
 
