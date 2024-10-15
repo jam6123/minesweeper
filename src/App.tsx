@@ -107,7 +107,9 @@ function revealSurroundings(
 ): void {
 
   getIndexesOfAllSidesOfBox(index).forEach(i => {
-    if(boxes[i].value === "💣" || boxes[i].isOpened) return;
+    // Do not reveal if...
+    const { value, isOpened, isMarked } = boxes[i];
+    if(value === "💣" || isOpened || isMarked) return;
 
     setBoxes(prev => {
       const boxesCopy = [...prev];
