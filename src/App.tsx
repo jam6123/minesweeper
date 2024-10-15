@@ -128,9 +128,11 @@ const initialValue = Array.from({ length: 100 }, (): Box => ({ value: null, isOp
 
 function App() {
   const [boxes, setBoxes] = useState<Box[]>(initialValue);
+  const [mineIndicator, setMineIndicator] = useState(10);
   const [isFirstClick, setIsFirstClick] = useState<Boolean>(true);
   const timerIntervalId = useRef<number | null>(null);
   const [timer, setTimer] = useState(0);   // timer is in seconds
+
   
   const formatTimer = (): string => {
     switch (timer.toString().length) {
@@ -179,11 +181,20 @@ function App() {
     }, 1000);
     timerIntervalId.current = id;
   }
+
+  const updateMineIndicator = (box: Box): void => {
+    if(box.isMarked) {
+      setMineIndicator(mineIndicator + 1);
+    }else {
+      setMineIndicator(mineIndicator - 1);
+    }
+  }
   
   const onClickBox = (index: number, e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
     const clickedBox = boxes[index];
     const isRightClick = e.button === 2;
     if(isRightClick) {
+      updateMineIndicator(clickedBox);
       markBox(index);
       return;
     }
@@ -224,8 +235,9 @@ function App() {
   }
   
   return (
-    <div>
-      <div className='text-white'>
+    <div className='w-fit'>
+      <div className='text-white flex justify-between'>
+        <p>{mineIndicator}</p>
         <p>{formatTimer()}</p>
       </div>
 
