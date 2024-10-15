@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 type Box = {
   value: number | "💣" | null;
@@ -129,7 +129,8 @@ const initialValue = Array.from({ length: 100 }, (): Box => ({ value: null, isOp
 function App() {
   const [boxes, setBoxes] = useState<Box[]>(initialValue);
   const [isFirstClick, setIsFirstClick] = useState<Boolean>(true);
-  const [timer, setTimer] = useState(0);   // seconds
+  const timerIntervalId = useRef<number | null>(null);
+  const [timer, setTimer] = useState(0);   // timer is in seconds
   
   const formatTimer = (): string => {
     switch (timer.toString().length) {
@@ -168,10 +169,15 @@ function App() {
     setBoxes(boxesCopy);
   }
 
+  const stopTimer = () => {
+    clearInterval(timerIntervalId.current!);
+  }
+
   const startTimer = () => {
-    setInterval(() => {
+    const id = setInterval(() => {
       setTimer(prev => prev + 1);
     }, 1000);
+    timerIntervalId.current = id;
   }
   
   const onClickBox = (index: number, e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
@@ -187,7 +193,7 @@ function App() {
     playSound(clickedBox);
     if(isFirstClick) {
       startTimer();
-      
+
       setBoxes(scatterMines(index));
       setIsFirstClick(false);
     };
@@ -206,6 +212,7 @@ function App() {
         break;
       case "💣":
         // Display Game over ********
+        stopTimer();
         setBoxes(prev => {
           const revealAllMines = (box: Box) => box.value == "💣" ? { ...box, isOpened: true } : box;
           const boxesWithAllMinesRevealed = [...prev].map(revealAllMines);
