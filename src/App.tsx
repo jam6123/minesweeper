@@ -131,9 +131,10 @@ function App() {
   const [boxes, setBoxes] = useState<Box[]>(initialValue);
   const [mineIndicator, setMineIndicator] = useState(10);
   const [isFirstClick, setIsFirstClick] = useState<Boolean>(true);
-  const timerIntervalId = useRef<number | null>(null);
   const [timer, setTimer] = useState(0);   // timer is in seconds
-
+  
+  const timerIntervalId = useRef<number | null>(0);
+  const isGameOver = timerIntervalId.current === null;
   
   const formatTimer = (): string => {
     switch (timer.toString().length) {
@@ -174,6 +175,7 @@ function App() {
 
   const stopTimer = () => {
     clearInterval(timerIntervalId.current!);
+    timerIntervalId.current = null;
   }
 
   const startTimer = () => {
@@ -236,7 +238,7 @@ function App() {
   }
   
   return (
-    <div className='w-fit'>
+    <div className='w-fit select-none'>
       <div className='text-white flex justify-between'>
         <p>{mineIndicator}</p>
         <p>{formatTimer()}</p>
@@ -252,7 +254,8 @@ function App() {
               <button 
                 className={clsx(
                   "bg-blue-500 select-none cursor-default hover:bg-blue-400 active:scale-95 border-black border-solid border-2",
-                  box.isOpened && "bg-gray-300 pointer-events-none"
+                  (isGameOver || box.isOpened) && "pointer-events-none",
+                  box.isOpened && "bg-gray-300"
                 )}
                 key={index}
                 onMouseDown={(e) => onClickBox(index, e)}
