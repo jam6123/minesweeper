@@ -148,9 +148,9 @@ function App() {
   }
 
   const playSound = (box: Box):void => {
-    const numberBoxAudio = new Audio("/src/assests/click.mp3");
-    const emptyBoxAudio = new Audio("/src/assests/empty-box.mp3");
-    const mineBoxAudio = new Audio("/src/assests/explode.mp3");
+    const numberBoxAudio = new Audio("/src/assests/audio/click.mp3");
+    const emptyBoxAudio = new Audio("/src/assests/audio/empty-box.mp3");
+    const mineBoxAudio = new Audio("/src/assests/audio/explode.mp3");
 
     switch (box.value) {
       case null:
