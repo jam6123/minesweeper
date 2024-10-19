@@ -267,7 +267,7 @@ function App() {
   }
 
   return (
-    <div className='w-fit select-none'>
+    <div className='w-fit select-none m-auto mt-5'>
       <div className='text-white flex justify-between'>
         <p>{mineIndicator}</p>
         <button 
