@@ -192,7 +192,17 @@ function App() {
       setMineIndicator(mineIndicator - 1);
     }
   }
-  
+
+  const restartGame = (): void => {
+    clearInterval(timerIntervalId.current!);
+    timerIntervalId.current = 0;
+
+    setIsFirstClick(true);
+    setTimer(0);
+    setMineIndicator(10);
+    setBoxes(Array.from({ length: 100 }, (): Box => ({ value: null, isOpened: false, isMarked: false })));
+  }
+
   const onClickBox = (index: number, e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
     const clickedBox = boxes[index];
     const isRightClick = e.button === 2;
@@ -241,6 +251,12 @@ function App() {
     <div className='w-fit select-none'>
       <div className='text-white flex justify-between'>
         <p>{mineIndicator}</p>
+        <button 
+          className='bg-yellow-600 px-2 py-1 active:scale-95'
+          onClick={restartGame}
+        >
+          Reset
+        </button>
         <p>{formatTimer()}</p>
       </div>
 
