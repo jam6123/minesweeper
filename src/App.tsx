@@ -1,6 +1,10 @@
 import clsx from 'clsx';
 import { useMemo, useRef, useState } from 'react'
 
+import numberBoxAudioPath from "/src/assets/audio/click.mp3"
+import emptyBoxAudioPath from "/src/assets/audio/empty-box.mp3"
+import mineBoxAudioPath from "/src/assets/audio/explode.mp3"
+
 type Box = {
   value: number | "💣" | null;
   isOpened: boolean;
@@ -156,9 +160,9 @@ function App() {
   }
 
   const playSound = (box: Box):void => {
-    const numberBoxAudio = new Audio("/src/assests/audio/click.mp3");
-    const emptyBoxAudio = new Audio("/src/assests/audio/empty-box.mp3");
-    const mineBoxAudio = new Audio("/src/assests/audio/explode.mp3");
+    const numberBoxAudio = new Audio(numberBoxAudioPath);
+    const emptyBoxAudio = new Audio(emptyBoxAudioPath);
+    const mineBoxAudio = new Audio(mineBoxAudioPath);
 
     switch (box.value) {
       case null:
