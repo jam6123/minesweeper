@@ -134,7 +134,7 @@ function App() {
   const [timer, setTimer] = useState(0);   // timer is in seconds
   
   const timerIntervalId = useRef<number | null>(0);
-  const isGameOver = timerIntervalId.current === null;
+  const isTimerStopped = timerIntervalId.current === null;
   
   const formatTimer = (): string => {
     switch (timer.toString().length) {
@@ -270,7 +270,7 @@ function App() {
               <button 
                 className={clsx(
                   "bg-blue-500 select-none cursor-default hover:bg-blue-400 active:scale-95 border-black border-solid border-2",
-                  (isGameOver || box.isOpened) && "pointer-events-none",
+                  (isTimerStopped || box.isOpened) && "pointer-events-none",
                   box.isOpened && "bg-gray-300"
                 )}
                 key={index}
