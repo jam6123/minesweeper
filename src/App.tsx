@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
 type Box = {
   value: number | "💣" | null;
@@ -135,6 +135,14 @@ function App() {
   
   const timerIntervalId = useRef<number | null>(0);
   const isTimerStopped = timerIntervalId.current === null;
+
+  const isWinner = useMemo(() => {
+    const openedBoxes = boxes.filter(box => box.isOpened).length;
+    return openedBoxes === 90;
+
+  }, [boxes]);
+
+  if(isWinner) stopTimer();
   
   const formatTimer = (): string => {
     switch (timer.toString().length) {
@@ -173,7 +181,7 @@ function App() {
     setBoxes(boxesCopy);
   }
 
-  const stopTimer = () => {
+  function stopTimer(): void {
     clearInterval(timerIntervalId.current!);
     timerIntervalId.current = null;
   }
@@ -200,6 +208,13 @@ function App() {
     setIsFirstClick(true);
     setTimer(0);
     setMineIndicator(10);
+
+    /* 
+      I thought to just use the "initialValue" here but the objects inside
+      is what being modified throught the game cause even I destructured them to 
+      create a copy of the boxes (array) the objects inside have still same references,
+      so I just assigned a new fresh array here.
+    */
     setBoxes(Array.from({ length: 100 }, (): Box => ({ value: null, isOpened: false, isMarked: false })));
   }
 
@@ -246,7 +261,7 @@ function App() {
         break;
     }
   }
-  
+
   return (
     <div className='w-fit select-none'>
       <div className='text-white flex justify-between'>
