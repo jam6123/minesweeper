@@ -243,7 +243,7 @@ function App() {
 
     // Because we use the "prev" here we can get the updated state made by the previous/preceded "setBoxes" setter.
     setBoxes(prev => {
-      const boxesCopy = [...prev];
+      const boxesCopy = structuredClone(prev);
       boxesCopy[index].isOpened = true;
   
       return boxesCopy;
@@ -254,7 +254,7 @@ function App() {
         revealSurroundings(index, boxes, setBoxes);
         break;
       case "💣":
-        // Display Game over ********
+        // Display Game over
         stopTimer();
         setBoxes(prev => {
           const revealAllMines = (box: Box) => box.value == "💣" ? { ...box, isOpened: true } : box;
