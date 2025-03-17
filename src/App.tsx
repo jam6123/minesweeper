@@ -134,7 +134,7 @@ const initialValue = Array.from({ length: 100 }, (): Box => ({ value: null, isOp
 function App() {
   const [boxes, setBoxes] = useState<Box[]>(initialValue);
   const [mineIndicator, setMineIndicator] = useState(10);
-  const [isFirstClick, setIsFirstClick] = useState<Boolean>(true);
+  const [isFirstClick, setIsFirstClick] = useState<boolean>(true);
   const [timer, setTimer] = useState(0);   // timer is in seconds
   
   const timerIntervalId = useRef<number | null>(0);
@@ -243,7 +243,7 @@ function App() {
 
     // Because we use the "prev" here we can get the updated state made by the previous/preceded "setBoxes" setter.
     setBoxes(prev => {
-      const boxesCopy = [...prev];
+      const boxesCopy = structuredClone(prev);
       boxesCopy[index].isOpened = true;
   
       return boxesCopy;
@@ -254,7 +254,7 @@ function App() {
         revealSurroundings(index, boxes, setBoxes);
         break;
       case "💣":
-        // Display Game over ********
+        // Display Game over
         stopTimer();
         setBoxes(prev => {
           const revealAllMines = (box: Box) => box.value == "💣" ? { ...box, isOpened: true } : box;
