@@ -267,6 +267,7 @@ function App() {
   }
 
   return (
+    <>
     <div className='w-fit select-none m-auto mt-5'>
       <div className='text-white flex justify-between'>
         <p>{mineIndicator}</p>
@@ -303,6 +304,10 @@ function App() {
         }
       </div>
     </div>
+    <h1 className='text-white fixed bottom-4 left-1/2 -translate-x-1/2'>
+      May druglord bang pogi???&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;¯\_(ツ)_/¯
+    </h1>
+    </>
   )
 }
 
