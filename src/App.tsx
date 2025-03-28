@@ -13,13 +13,13 @@ type Box = {
 
 function generateRandomNumber(max: number, except: number | number[]): number {
   if(typeof except === "number") except = [except];
-  let result = Math.round(Math.random() * max);
+  let randomNumber = Math.round(Math.random() * max);
 
-  while (except.includes(result)) {
-    result = Math.round(Math.random() * max);
+  while (except.includes(randomNumber)) {
+    randomNumber = Math.round(Math.random() * max);
   }
 
-  return result;
+  return randomNumber;
 };
 
 function getIndexesOfAllSidesOfBox(targetIndex: number): number[] {
@@ -67,7 +67,7 @@ function getIndexesOfAllSidesOfBox(targetIndex: number): number[] {
     bottomMiddle,
     bottomLeft,
     left
-  ].filter(value => value != null);   // Remove null values. 
+  ].filter(value => value != null);   // Remove null values before returning. 
 }
 
 function scatterMines(indexOfFirstOpenedBox: number, initialBoxes: Box[]): Box[] {
@@ -111,7 +111,6 @@ function revealSurroundings(
 ): void {
 
   getIndexesOfAllSidesOfBox(index).forEach(i => {
-    // Do not reveal if...
     const { value, isOpened, isMarked } = boxes[i];
     if(value === "💣" || isOpened || isMarked) return;
 
@@ -159,12 +158,12 @@ function App() {
     }
   }
 
-  const playSound = (box: Box):void => {
+  const playSound = (clickedBox: Box):void => {
     const numberBoxAudio = new Audio(numberBoxAudioPath);
     const emptyBoxAudio = new Audio(emptyBoxAudioPath);
     const mineBoxAudio = new Audio(mineBoxAudioPath);
 
-    switch (box.value) {
+    switch (clickedBox.value) {
       case null:
         emptyBoxAudio.play();
         break;
@@ -224,7 +223,7 @@ function App() {
 
   const onClickBox = (index: number, e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
     const clickedBox = boxes[index];
-    const isRightClick = e.button === 2;
+    const isRightClick = (e.button === 2);
     if(isRightClick) {
       updateMineIndicator(clickedBox);
       markBox(index);
