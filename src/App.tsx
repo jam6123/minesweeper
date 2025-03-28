@@ -303,7 +303,7 @@ function App() {
         }
       </div>
     </div>
-    <h1 className='text-white fixed bottom-4 left-1/2 -translate-x-1/2'>
+    <h1 className='text-white text-xs fixed bottom-4 left-1/2 -translate-x-1/2'>
       May druglord bang pogi???&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;¯\_(ツ)_/¯
     </h1>
     </>
